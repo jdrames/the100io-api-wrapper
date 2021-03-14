@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using the_100_api.Interfaces;
 using the_100_api.Models;
 
 namespace the_100_api.Endpoints
@@ -11,7 +12,7 @@ namespace the_100_api.Endpoints
     /// <summary>
     /// Represents The100.io Endpoint https://www.the100.io/v2/groups
     /// </summary>
-    public class Groups
+    public class Groups : IGroups
     {
         private readonly HttpClient _httpClient;
         
@@ -20,172 +21,79 @@ namespace the_100_api.Endpoints
             _httpClient = httpClient;
         }
 
-        /// <summary>
-        /// Gets a group by Id.
-        /// </summary>
-        /// <param name="groupId">Id of group to retrieve.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public Group GetGroupById(int groupId)
-        {
-            return GetGroupByIdAsync(groupId).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Asynchronously gets a group by Id.
-        /// </summary>
-        /// <param name="groupId">Id of group to retrieve.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public async Task<Group> GetGroupByIdAsync(int groupId)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"groups/{groupId}");
-            var response = await _httpClient.SendAsync(request);
-
-            if (!response.IsSuccessStatusCode)
-                throw The100API.CreateApiErrorMessage(response);
-
-            return await The100API.Deserialize<Group>(response);
-        }
-
-        /// <summary>
-        /// Gets a groups scheduled gaming sessions.
-        /// </summary>
-        /// <param name="groupId">Id of group to retrieve gaming sessions for.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public IEnumerable<GamingSession> GetGamingSessions(int groupId)
-        {
-            return GetGamingSessionsAsync(groupId).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Asynchronously gets a groups scheduled gaming sessions.
-        /// </summary>
-        /// <param name="groupId">Id of group to retrieve gaming sessions for.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public async Task<IEnumerable<GamingSession>> GetGamingSessionsAsync(int groupId)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"groups/{groupId}/gaming_sessions");
-            var response = await _httpClient.SendAsync(request);
-
-            if (!response.IsSuccessStatusCode)
-                throw The100API.CreateApiErrorMessage(response);
-
-            return await The100API.Deserialize<IEnumerable<GamingSession>>(response);
-        }
-
-        /// <summary>
-        /// Get the users for a group.
-        /// </summary>
-        /// <param name="groupId">Id of group to retrieve users for.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public IEnumerable<User> GetUsers(int groupId)
-        {
-            return GetUsersAsync(groupId).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Asynchronously get the users for a group.
-        /// </summary>
-        /// <param name="groupId">Id of group to retrieve users for.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public async Task<IEnumerable<User>> GetUsersAsync(int groupId)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"groups/{groupId}/users");
-            var response = await _httpClient.SendAsync(request);
-
-            if (!response.IsSuccessStatusCode)
-                throw The100API.CreateApiErrorMessage(response);
-
-            return await The100API.Deserialize<IEnumerable<User>>(response);
-        }
-
-        /// <summary>
-        /// Gets a list of all group tags available.
-        /// <para>Not group specific.</para>
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
         public IEnumerable<string> GetAllTags()
         {
             return GetAllTagsAsync().GetAwaiter().GetResult();
         }
 
-        /// <summary>
-        /// Asynchronously gets a list of all group tags available.
-        /// <para>Not group specific.</para>
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
         public async Task<IEnumerable<string>> GetAllTagsAsync()
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"groups/all_tags");
-            var response = await _httpClient.SendAsync(request);
-
-            if (!response.IsSuccessStatusCode)
-                throw The100API.CreateApiErrorMessage(response);
-
-            return await The100API.Deserialize<IEnumerable<string>>(response);
+            return await The100API.SendGetRequest<IEnumerable<string>>(_httpClient, "groups");
         }
 
-        /// <summary>
-        /// Gets a list of approved games for a group.
-        /// </summary>
-        /// <param name="groupId">Id of group to retrieve approved games for.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public IEnumerable<ApprovedGame> GetApprovedGames(int groupId)
+        public IEnumerable<ApprovedGame> GetApprovedGames(int id)
         {
-            return GetApprovedGamesAsync(groupId).GetAwaiter().GetResult();
+            return GetApprovedGamesAsync(id).GetAwaiter().GetResult();
         }
 
-        /// <summary>
-        /// Asynchronously gets a list of approved games for a group.
-        /// </summary>
-        /// <param name="groupId">Id of group to retrieve approved games for.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public async Task<IEnumerable<ApprovedGame>> GetApprovedGamesAsync(int groupId)
+        public async Task<IEnumerable<ApprovedGame>> GetApprovedGamesAsync(int id)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"groups/{groupId}/approved_games");
-            var response = await _httpClient.SendAsync(request);
-
-            if (!response.IsSuccessStatusCode)
-                throw The100API.CreateApiErrorMessage(response);
-
-            return await The100API.Deserialize<IEnumerable<ApprovedGame>>(response);
+            return await The100API.SendGetRequest<IEnumerable<ApprovedGame>>(_httpClient, $"groups/{id}/approved_games");
         }
 
-        /// <summary>
-        /// Gets a list of the groups activity feed.
-        /// </summary>
-        /// <param name="groupId">Id of group to retrieve feed for.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public IEnumerable<FeedItem> GetFeed(int groupId)
+        public Group GetById(int id)
         {
-            return GetFeedAsync(groupId).GetAwaiter().GetResult();
+            return GetByIdAsync(id).GetAwaiter().GetResult();
         }
 
-        /// <summary>
-        /// Asynchronously gets a list of the groups activity feed.
-        /// </summary>
-        /// <param name="groupId">Id of group to retrieve feed for.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public async Task<IEnumerable<FeedItem>> GetFeedAsync(int groupId)
+        public async Task<Group> GetByIdAsync(int id)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"groups/{groupId}/feed");
-            var response = await _httpClient.SendAsync(request);
+            return await The100API.SendGetRequest<Group>(_httpClient, $"groups/{id}");
+        }
 
-            if (!response.IsSuccessStatusCode)
-                throw The100API.CreateApiErrorMessage(response);
+        public IEnumerable<FeedItem> GetFeed(int id)
+        {
+            return GetFeedAsync(id).GetAwaiter().GetResult();
+        }
 
-            return await The100API.Deserialize<IEnumerable<FeedItem>>(response);
+        public async Task<IEnumerable<FeedItem>> GetFeedAsync(int id)
+        {
+            return await The100API.SendGetRequest<IEnumerable<FeedItem>>(_httpClient, $"groups/{id}/feed");
+        }
+
+        public IEnumerable<GamingSession> GetGamingSessions(int id, int page)
+        {
+            return GetGamingSessionsAsync(id, page).GetAwaiter().GetResult();
+        }
+
+        public async Task<IEnumerable<GamingSession>> GetGamingSessionsAsync(int id, int page = 1)
+        {
+            if (page < 1)
+                page = 1;
+
+            return await The100API.SendGetRequest<IEnumerable<GamingSession>>(_httpClient, $"groups/{id}/gaming_sessions?page={page}");
+        }
+
+        public IEnumerable<PlatformMembership> GetPlatformMemberships(int id)
+        {
+            return GetPlatformMembershipsAsync(id).GetAwaiter().GetResult();
+        }
+
+        public async Task<IEnumerable<PlatformMembership>> GetPlatformMembershipsAsync(int id)
+        {
+            return await The100API.SendGetRequest<IEnumerable<PlatformMembership>>(_httpClient, $"groups/{id}/platform_memberships");
+        }
+
+        public IEnumerable<User> GetUsers(int id, int page)
+        {
+            return GetUsersAsync(id, page).GetAwaiter().GetResult();
+        }
+
+        public async Task<IEnumerable<User>> GetUsersAsync(int id, int page)
+        {
+            if (page < 1)
+                page = 1;
+            return await The100API.SendGetRequest<IEnumerable<User>>(_httpClient, $"groups/{id}/users?page={page}");
         }
     }
 }

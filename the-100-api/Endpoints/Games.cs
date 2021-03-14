@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using the_100_api.Interfaces;
 using the_100_api.Models;
 
 namespace the_100_api.Endpoints
@@ -11,7 +12,7 @@ namespace the_100_api.Endpoints
     /// <summary>
     /// The games endpoint for the100.io.
     /// </summary>
-    public class Games
+    public class Games : IGames
     {
         private readonly HttpClient _httpClient;
 
@@ -20,27 +21,14 @@ namespace the_100_api.Endpoints
             _httpClient = httpClient;
         }
 
-        /// <summary>
-        /// Gets games and their associated game activities currently supported on the100.io.
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<Game> GetGames()
+        public IEnumerable<Game> GetAll()
         {
-            return GetGamesAsync().GetAwaiter().GetResult();
+            return GetAllAsync().GetAwaiter().GetResult();
         }
 
-        /// <summary>
-        /// Asynchronously gets games and their associated game activities currently supported on the100.io.
-        /// </summary>
-        /// <returns></returns>
-        public async Task<IEnumerable<Game>> GetGamesAsync()
+        public async Task<IEnumerable<Game>> GetAllAsync()
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "games");
-            var response = await _httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
-                throw The100API.CreateApiErrorMessage(response);
-
-            return await The100API.Deserialize<IEnumerable<Game>>(response);
+            return await The100API.SendGetRequest<IEnumerable<Game>>(_httpClient, "games");
         }
     }
 }

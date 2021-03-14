@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using the_100_api.Interfaces;
 using the_100_api.Models;
 
 namespace the_100_api.Endpoints
@@ -11,7 +12,7 @@ namespace the_100_api.Endpoints
     /// <summary>
     /// Represents The100.io Endpoint https://www.the100.io/v2/gaming_sessions
     /// </summary>
-    public class GamingSessions
+    public class GamingSessions : IGamingSessions
     {
         private readonly HttpClient _httpClient;
 
@@ -20,63 +21,26 @@ namespace the_100_api.Endpoints
             _httpClient = httpClient;
         }
 
+        public IEnumerable<GamingSession> GetAll(int page)
+        {
+            return GetAllAsync(page).GetAwaiter().GetResult();
+        }
 
-        /// <summary>
-        /// Gets gaming sessions.
-        /// </summary>
-        /// <param name="page">Page of gaming sessions to retrieve. Paging starts at 1.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public IEnumerable<GamingSession> GetGamingSessions(int page = 1)
+        public async Task<IEnumerable<GamingSession>> GetAllAsync(int page)
         {
             if (page < 1)
                 page = 1;
-            return GetGamingSessionsAsync(page).GetAwaiter().GetResult();
+            return await The100API.SendGetRequest<IEnumerable<GamingSession>>(_httpClient, $"gaming_sessions?page={page}");
         }
 
-        /// <summary>
-        /// Asynchronously gets gaming sessions.
-        /// </summary>
-        /// <param name="page">Page of gaming sessions to retrieve. Paging starts at 1.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public async Task<IEnumerable<GamingSession>> GetGamingSessionsAsync(int page = 1)
+        public GamingSession GetById(int id)
         {
-            if (page < 1)
-                page = 1;
-            var request = new HttpRequestMessage(HttpMethod.Get, $"gaming_sessions?page={page}");
-            var response = await _httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
-                throw The100API.CreateApiErrorMessage(response);
-
-            return await The100API.Deserialize<IEnumerable<GamingSession>>(response);
+            return GetByIdAsync(id).GetAwaiter().GetResult();
         }
 
-        /// <summary>
-        /// Get a gaming session by Id.
-        /// </summary>
-        /// <param name="sessionId">Id of gaming session to retrieve.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public GamingSession GetGamingSessionById(int sessionId)
+        public async Task<GamingSession> GetByIdAsync(int id)
         {
-            return GetGamingSessionByIdAsync(sessionId).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Asynchronously get a gaming session by Id.
-        /// </summary>
-        /// <param name="sessionId">Id of gaming session to retrieve.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.ApiException"></exception>
-        public async Task<GamingSession> GetGamingSessionByIdAsync(int sessionId)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"gaming_sessions/{sessionId}");
-            var response = await _httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
-                throw The100API.CreateApiErrorMessage(response);
-
-            return await The100API.Deserialize<GamingSession>(response);
+            return await The100API.SendGetRequest<GamingSession>(_httpClient, $"gaming_sessions/{id}");
         }
     }
 }

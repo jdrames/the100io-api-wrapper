@@ -6,7 +6,7 @@ Synchronous methods are just wrapped asyncronous methods.
 All methods will throw an `ApiException` if the request was not successful.
 
 ```
-ApiException {
+ApiException : Exception {
     <string> Message: Message indicating there was an API request error.
     <string> StatusCode: The http response code received back from the API request.
     <string> StatusMessage: The reason phrase send from the API server with the StatusCode.
@@ -15,11 +15,15 @@ ApiException {
   
 You must obtain an API token from www.the100.io.
 
-## Example Usage
+## Notice
+This library has been updated to version 2.0.0. It now used interfaces to help with Endpoint definitions.
+If the TokenType supplied when creating the api object is a Group token then only the group accessible
+user endpoints will be available. If the TokenType supplied is a User token then all user endpoints will be available.
 
+## Example Usage
 ```csharp
 ...
-    var the100 = new The100API("your-api-token-here");
+    var the100 = new The100API(TokenType.Group, "your-api-token-here");
     var games = await the100.Games.GetGamesAsync();
     Console.WriteLine("The100 Games");
     foreach(var game in games){
@@ -28,7 +32,4 @@ You must obtain an API token from www.the100.io.
 ...    
 ```
 
-## TODO
-Add additional user endpoints that are user specific access only. 
-This wrapper is meant for endpoints that are to be accessed via a groups 
-access token.  
+
